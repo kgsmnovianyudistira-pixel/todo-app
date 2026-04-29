@@ -27,7 +27,7 @@
                         @endif
                     </div>
                     <div>
-                        <a href="{{ route('todos.show', $todo) }}" class="btn btn-sm btn-secondary">Detail</a>
+                        <a href="{{ route('todos.show', $todo) }}" class="btn btn-sm btn-sec">Detail</a>
                         <a href="{{ route('todos.edit', $todo) }}" class="btn btn-sm btn-warning">Edit</a>
                         <form method="POST" action="{{ route('todos.destroy', $todo) }}" class="d-inline">
                             @csrf
