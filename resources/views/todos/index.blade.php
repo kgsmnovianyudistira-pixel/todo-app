@@ -4,38 +4,32 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Daftar Todo</h1>
-        <a href="/todos/create" class="btn btn-primary">+ Tambah Todo</a>
+        <h1>List Todo</h1>
+        <a href="{{ route('todos.create') }}" class="btn btn-primary">Tambah Todo</a>
     </div>
 
-    @php
-        // Data sementara (nanti akan diganti dengan database)
-        $todos = [
-            ['id' => 1, 'judul' => 'Belajar Laravel', 'status' => 'selesai'],
-            ['id' => 2, 'judul' => 'Membuat aplikasi Todo', 'status' => 'proses'],
-            ['id' => 3, 'judul' => 'Belajar Git', 'status' => 'proses'],
-            ['id' => 4, 'judul' => 'Menyelesaikan laporan', 'status' => 'belum'],
-        ];
-    @endphp
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-    @if(count($todos) > 0)
+    @if(($todos ?? collect())->count() > 0)
         <div class="list-group">
             @foreach($todos as $todo)
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
-                        <h5>{{ $todo['judul'] }}</h5>
-                        @if($todo['status'] == 'selesai')
+                        <h5>{{ $todo->judul }}</h5>
+                        @if($todo->status === 'selesai')
                             <span class="badge bg-success">Selesai</span>
-                        @elseif($todo['status'] == 'proses')
+                        @elseif($todo->status === 'proses')
                             <span class="badge bg-warning">Proses</span>
                         @else
                             <span class="badge bg-secondary">Belum</span>
                         @endif
                     </div>
                     <div>
-                        <a href="/todos/{{ $todo['id'] }}" class="btn btn-sm btn-info">Detail</a>
-                        <a href="/todos/{{ $todo['id'] }}/edit" class="btn btn-sm btn-warning">Edit</a>
-                        <form method="POST" action="/todos/{{ $todo['id'] }}" class="d-inline">
+                        <a href="{{ route('todos.show', $todo) }}" class="btn btn-sm btn-secondary">Detail</a>
+                        <a href="{{ route('todos.edit', $todo) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form method="POST" action="{{ route('todos.destroy', $todo) }}" class="d-inline">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
@@ -45,6 +39,6 @@
             @endforeach
         </div>
     @else
-        <div class="alert alert-info">Belum ada todo. Yuk tambah todo pertama!</div>
+        <div class="alert alert-info">Belum ada todolist nih isi bro</div>
     @endif
 @endsection

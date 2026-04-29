@@ -1,51 +1,63 @@
 <?php
-
 namespace App\Http\Controllers;
 
-    class TodoController extends Controller
-{
-// Data sementara (nanti diganti database)
-private function getTodos()
-{
-return [
-['id' => 1, 'judul' => 'Belajar Laravel', 'deskripsi' => 'Belajar Lara
-vel dari dasar', 'status' => 'selesai'],
-['id' => 2, 'judul' => 'Membuat aplikasi Todo', 'deskripsi' => 'Membua
-t aplikasi todo list sederhana', 'status' => 'proses'],
-['id' => 3, 'judul' => 'Belajar Git', 'deskripsi' => 'Belajar branchin
-g dan pull request', 'status' => 'proses'],
-['id' => 4, 'judul' => 'Menyelesaikan laporan', 'deskripsi' => 'Lapora
-n proyek akhir', 'status' => 'belum'],
+use Illuminate\Http\Request;
+use App\Models\Todo;
 
-];
-}
-// Menampilkan form edit
-public function edit($id)
+class TodoController extends Controller
 {
-$todos = $this->getTodos();
-// Cari todo berdasarkan id
-$todo = null;
-foreach ($todos as $item) {
-if ($item['id'] == $id) {
-$todo = $item;
-break;
-}
-}
-// Jika todo tidak ditemukan
-if (!$todo) {
-return redirect('/todos')->with('error', 'Todo tidak ditemukan!');
-}
-return view('todos.edit', ['todo' => $todo]);
-}
-// Memproses update todo
-public function update(Request $request, $id)
-{
-// Untuk sementara, hanya redirect dengan pesan sukses
-return redirect('/todos')->with('success', 'Todo berhasil diupdate!');
-}
-}
-    public function destroy($id)
-{
-// Untuk sementara, hanya redirect dengan pesan sukses
-return redirect('/todos')->with('success', 'Todo berhasil dihapus!');
+    public function index()
+    {
+        $todos = Todo::latest()->get();
+        return view('todos.index', compact('todos'));
+    }
+
+    public function create()
+    {
+        return view('todos.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'judul' => ['required', 'string', 'min:3', 'max:255'],
+            'deskripsi' => ['nullable', 'string'],
+            'status' => ['required', 'in:belum,proses,selesai'],
+        ]);
+
+        Todo::create($validated);
+
+        return redirect()->route('todos.index')->with('success', 'Todo berhasil ditambahkan');
+    }
+
+    public function show(Todo $todo)
+    {
+        return view('todos.show', compact('todo'));
+    }
+
+    public function edit(Todo $todo)
+    {
+        return view('todos.edit', compact('todo'));
+    }
+
+    public function update(Request $request, Todo $todo)
+    {
+        $validated = $request->validate([
+            'judul' => ['required', 'string', 'min:3', 'max:255'],
+            'deskripsi' => ['nullable', 'string'],
+            'status' => ['required', 'in:belum,proses,selesai'],
+        ]);
+
+        $todo->update($validated);
+
+        return redirect()->route('todos.show', $todo)->with('success', 'Todo berhasil diupdate');
+    }
+
+    public function destroy(Todo $todo)
+    {
+        $todo->delete();
+
+        return redirect()->route('todos.index')->with('success', 'Todo berhasil dihapus');
+    }
+
 }
